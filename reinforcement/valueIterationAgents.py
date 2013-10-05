@@ -41,30 +41,44 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         self.mdp = mdp
         self.discount = discount
-        self.iterations = iterations
+        self.iterations = iterations=100
         self.values = util.Counter() # A Counter is a dict with default 0
 
         #Get all of the states
-        possStates=mdp.getStates()
+        
+        #print "number of states is ",len(possStates)
+        
         currIterations=0
-        while currIterations<iterations:
+        newValues=[]
+        #print "current iterations: ",currIterations
+        #print "max iterations: ",iterations
+        while currIterations<self.iterations:
+            #print "do I enter this while loop? ",currIterations
+            possStates=mdp.getStates()
             for state in possStates:
+                
+                #print "this for loop? ",len(possStates)
                 #If it is terminal, no future rewards, and you continue
                 if mdp.isTerminal(state):
                     continue
                 #Find all the actions for each state
                 possActions=mdp.getPossibleActions(state)
                 #Keep track of the best action, and it's value
-                maxAction=possActions[0]
-                maxVal=0
+                maxVal=-999999999
                 for action in possActions:
-                    stateProbPairs=mdp.getTransitionStatesAndProbs(state,action)
-                    actVal=0
-                    for pair in stateProbPairs:
-                        actVal+=pair[1]*(mdp.getReward(state,action,pair[0])+discount*self.values[state])
-                        if actVal>maxVal:
-                            maxAction=action
+                    actVal=self.computeQValueFromValues(state, action)
+                    if actVal>maxVal:
                             maxVal=actVal
+                newValues+=[(state,maxVal)]
+                #print "Our new values are: ",newValues
+            for val in newValues:
+                #print "do we get here? ",len(newValues)
+                self.values[val[0]]=val[1]
+                print "Updated value is ",self.values[val[0]]
+            currIterations+=1
+            newValues=[]
+        #print "can we break this while loop ever?"
+                
                 
             
 
@@ -82,8 +96,13 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        stateProbPairs=self.mdp.getTransitionStatesAndProbs(state,action)
+        actVal=0
+        for pair in stateProbPairs:
+            actVal+=pair[1]*(self.mdp.getReward(state,action,pair[0])+self.discount*self.values[state])
+        print "The Q value is ",actVal
+        return actVal
+                        
 
     def computeActionFromValues(self, state):
         """
@@ -94,8 +113,24 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-
-        util.raiseNotDefined()
+        if self.mdp.isTerminal(state):
+            return None
+        
+        actions=self.mdp.getPossibleActions(state)
+        maxStateVal=-1000000
+        bestAction=None
+        for action in actions:
+            nextState=self.mdp.getTransitionStatesAndProbs(state, action)
+            if self.values[nextState[0]]>maxStateVal:
+                #print "the value is: ",self.values[nextState[0]]
+                #print "the current max is: ",maxStateVal
+                maxStateVal=self.values[nextState[0]]
+                bestAction=action
+        print bestAction
+        return bestAction
+            
+            
+            
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
