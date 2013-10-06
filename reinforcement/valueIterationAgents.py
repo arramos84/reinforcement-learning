@@ -99,7 +99,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         stateProbPairs=self.mdp.getTransitionStatesAndProbs(state,action)
         actVal=0
         for pair in stateProbPairs:
-            actVal+=pair[1]*(self.mdp.getReward(state,action,pair[0])+self.discount*self.values[state])
+            actVal+=pair[1]*(self.mdp.getReward(state,action,pair[0])+self.discount*self.values[pair[0]])
         print "The Q value is ",actVal
         return actVal
                         
