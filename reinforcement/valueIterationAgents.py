@@ -41,47 +41,31 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         self.mdp = mdp
         self.discount = discount
-        self.iterations = iterations=100
+        self.iterations = iterations
         self.values = util.Counter() # A Counter is a dict with default 0
-
-        #Get all of the states
-        
-        #print "number of states is ",len(possStates)
-        
+     
+        #start at iteration zero
         currIterations=0
-        newValues=[]
-        #print "current iterations: ",currIterations
-        #print "max iterations: ",iterations
-        while currIterations<self.iterations:
-            #print "do I enter this while loop? ",currIterations
+        
+        #perform value iteration
+        while currIterations < self.iterations:
+            #initialize a counter to keep track of our values per iteration
+            allVals = util.Counter()
             possStates=mdp.getStates()
             for state in possStates:
-                
-                #print "this for loop? ",len(possStates)
-                #If it is terminal, no future rewards, and you continue
-                if mdp.isTerminal(state):
-                    continue
-                #Find all the actions for each state
-                possActions=mdp.getPossibleActions(state)
-                #Keep track of the best action, and it's value
-                maxVal=-999999999
-                for action in possActions:
-                    actVal=self.computeQValueFromValues(state, action)
-                    if actVal>maxVal:
-                            maxVal=actVal
-                newValues+=[(state,maxVal)]
-                #print "Our new values are: ",newValues
-            for val in newValues:
-                #print "do we get here? ",len(newValues)
-                self.values[val[0]]=val[1]
-                #print "Updated value is ",self.values[val[0]]
-            currIterations+=1
-            newValues=[]
-        #print "can we break this while loop ever?"
-                
-                
-            
-
+                #if there are no actions don't iterate, else compute
+                if not mdp.isTerminal(state):
+                    #initialize counter for getting values from the current state
+                    vals = util.Counter()
+                    possActions = mdp.getPossibleActions(state)
+                    #iterate over actions and get their qvalues
+                    for action in possActions:
+                        vals[action] = self.computeQValueFromValues(state, action)
+                    #get the best seen value for that state and action
+                    allVals[state] = max(vals.values())
+            currIterations += 1
+            #update the policy with the best values
+            self.values = allVals.copy()  
 
 
     def getValue(self, state):
@@ -134,7 +118,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         for action in actions:
             values[action] = self.computeQValueFromValues(state, action)
         #return the best action
-        return values.argMax()    
+        return values.argMax()   
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
