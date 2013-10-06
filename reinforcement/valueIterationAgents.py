@@ -74,7 +74,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             for val in newValues:
                 #print "do we get here? ",len(newValues)
                 self.values[val[0]]=val[1]
-                print "Updated value is ",self.values[val[0]]
+                #print "Updated value is ",self.values[val[0]]
             currIterations+=1
             newValues=[]
         #print "can we break this while loop ever?"
@@ -96,11 +96,15 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
+        #get the Transition function and nextStates
         stateProbPairs=self.mdp.getTransitionStatesAndProbs(state,action)
+        #initialize the value to zero
         actVal=0
+        #iterate over probabilities (transition functions) and next states
         for pair in stateProbPairs:
+            #compute qvalue
             actVal+=pair[1]*(self.mdp.getReward(state,action,pair[0])+self.discount*self.values[pair[0]])
-        print "The Q value is ",actVal
+        #print "The Q value is ",actVal
         return actVal
                         
 
@@ -113,24 +117,24 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
+        #return None if terminal
         if self.mdp.isTerminal(state):
             return None
         
+        #get the legal actions
         actions=self.mdp.getPossibleActions(state)
-        maxStateVal=-1000000
-        bestAction=None
+        
+        #if there are not legal actions return None
+        if len(actions) == 0:
+            return None
+        
+        #initialize a counter to hold our values
+        values = util.Counter()
+        #iterate over the legal actions and compute the qvalues
         for action in actions:
-            nextState=self.mdp.getTransitionStatesAndProbs(state, action)
-            if self.values[nextState[0]]>maxStateVal:
-                #print "the value is: ",self.values[nextState[0]]
-                #print "the current max is: ",maxStateVal
-                maxStateVal=self.values[nextState[0]]
-                bestAction=action
-        print bestAction
-        return bestAction
-            
-            
-            
+            values[action] = self.computeQValueFromValues(state, action)
+        #return the best action
+        return values.argMax()    
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
