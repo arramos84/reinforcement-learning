@@ -52,7 +52,6 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         #get the value corresponding to Q(state, action)
-        #print self.qVals[(state, action)]
         return self.qVals[(state, action)]
 
 
@@ -115,7 +114,8 @@ class QLearningAgent(ReinforcementAgent):
         # Pick Action
         legalActions = self.getLegalActions(state)
         #possibly pick a random action with probability epsilon
-        if util.flipCoin(self.epsilon):
+        p = self.epsilon
+        if util.flipCoin(p):
             return random.choice(legalActions)
         #else return the best action
         else:
