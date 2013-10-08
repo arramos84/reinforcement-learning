@@ -52,7 +52,7 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         #get the value corresponding to Q(state, action)
-        print self.qVals[(state, action)]
+        #print self.qVals[(state, action)]
         return self.qVals[(state, action)]
 
 
@@ -132,7 +132,7 @@ class QLearningAgent(ReinforcementAgent):
         """
         qSa = self.getQValue(state, action)
         sample = reward + self.discount*self.computeValueFromQValues(nextState)
-        return (1-self.alpha)*qSa + self.alpha*sample
+        self.qVals[(state, action)] = (1-self.alpha)*qSa + self.alpha*sample
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
