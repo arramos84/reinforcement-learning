@@ -130,8 +130,19 @@ class QLearningAgent(ReinforcementAgent):
           NOTE: You should never call this function,
           it will be called on your behalf
         """
+        """
+          QLearning update algorithm:
+          
+          Q(s,a) = (1-alpha)*Q(s,a) + alpha*sample
+          
+          ***sample = R(s,a,s') + gamma*max(Q(s',a))***
+          
+        """
+        #calculate Q(s,a)
         qSa = self.getQValue(state, action)
+        #get the sample
         sample = reward + self.discount*self.computeValueFromQValues(nextState)
+        #perform the update and add it to our qVals dict-counter
         self.qVals[(state, action)] = (1-self.alpha)*qSa + self.alpha*sample
 
     def getPolicy(self, state):
