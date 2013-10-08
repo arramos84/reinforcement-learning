@@ -205,8 +205,11 @@ class ApproximateQAgent(PacmanQAgent):
           Should return Q(state,action) = w * featureVector
           where * is the dotProduct operator
         """
+        #get features using the Identity extractor
         features = self.featExtractor.getFeatures(state,action)
+        #get weights
         weights = self.getWeights()
+        #comupute dot product or features and weights
         dotProduct = features*weights
         return dotProduct
 
@@ -214,16 +217,20 @@ class ApproximateQAgent(PacmanQAgent):
         """
            Should update your weights based on transition
         """
-        newWeights = util.Counter()
-        difference = reward + self.discount*self.computeValueFromQValues(nextState) - self.computeValueFromQValues(state)
+        #differece = reward + gamma*Q(s', a') - Q(s,a)
+        difference = reward + self.discount*self.computeValueFromQValues(nextState) - self.getQValue(state, action)
         weights = self.getWeights()
-        features = self.featExtractor.getFeatures(state, action)
-        if len(weights.values()) == 0:
+        #if weight vector is empty, initialize it to zero
+        if len(weights) == 0:
             weights[(state,action)] = 0
-        #print 'w',weights,'f', features, exit(1)
-        for w, f in weights.values(), features.values():
-            newWeights[(state, action)] =  w + self.alpha*difference*f
-        self.weights = newWeights.copy()
+        features = self.featExtractor.getFeatures(state, action)
+        #iterate over features and multiply them by the learning rate (alpha) and the difference
+        for key in features.keys():
+            features[key] = features[key]*self.alpha*difference
+        #sum the weights to their corresponding newly scaled features
+        weights.__radd__(features)
+        #update weights
+        self.weights = weights.copy()
         
 
     def final(self, state):
@@ -234,5 +241,5 @@ class ApproximateQAgent(PacmanQAgent):
         # did we finish training?
         if self.episodesSoFar == self.numTraining:
             # you might want to print your weights here for debugging
-            print self.getWeights()
+            #print self.getWeights()
             pass
