@@ -135,7 +135,7 @@ class QLearningAgent(ReinforcementAgent):
           
           Q(s,a) = (1-alpha)*Q(s,a) + alpha*sample
           
-          ***sample = R(s,a,s') + gamma*max(Q(s',a))***
+          ***sample = R(s,a,s') + gamma*max(Q(s',a'))***
           
         """
         #calculate Q(s,a)
